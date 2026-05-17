@@ -1,6 +1,7 @@
 import type { NextAuthOptions, Session } from "next-auth";
 import type { JWT } from "next-auth/jwt";
 import GitHubProvider from "next-auth/providers/github";
+import { ensureStarterAssignment } from "@/lib/onboarding";
 import { prisma } from "@/lib/prisma";
 
 type GitHubProfile = {
@@ -27,7 +28,7 @@ export const authOptions: NextAuthOptions = {
 
       const githubProfile = profile as GitHubProfile;
 
-      await prisma.user.upsert({
+      const user = await prisma.user.upsert({
         where: { githubId: String(githubProfile.id) },
         update: {
           githubLogin: githubProfile.login,
@@ -39,6 +40,12 @@ export const authOptions: NextAuthOptions = {
           displayName: githubProfile.name ?? githubProfile.login,
           level: "Java 入门 I"
         }
+      });
+
+      await ensureStarterAssignment({
+        userId: user.id,
+        githubId: user.githubId,
+        githubLogin: user.githubLogin
       });
 
       return true;

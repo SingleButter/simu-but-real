@@ -10,6 +10,7 @@ import {
   progressMetrics as fallbackProgressMetrics,
   pullRequestStatus as fallbackPullRequestStatus
 } from "@/lib/mock-data";
+import { ensureStarterAssignment } from "@/lib/onboarding";
 import { prisma } from "@/lib/prisma";
 
 type DashboardData = {
@@ -42,6 +43,21 @@ export async function getDashboardData(githubId?: string): Promise<DashboardData
   }
 
   try {
+    if (githubId) {
+      const user = await prisma.user.findUnique({
+        where: { githubId },
+        select: { id: true, githubId: true, githubLogin: true }
+      });
+
+      if (user) {
+        await ensureStarterAssignment({
+          userId: user.id,
+          githubId: user.githubId,
+          githubLogin: user.githubLogin
+        });
+      }
+    }
+
     const [task, progressRecords, questions] = await Promise.all([
       prisma.taskTicket.findFirst({
         where: githubId
