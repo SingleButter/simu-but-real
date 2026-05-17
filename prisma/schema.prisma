@@ -1,0 +1,129 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum TaskStatus {
+  CLAIMED
+  IN_PROGRESS
+  REVIEW
+  COMPLETE
+}
+
+enum PullRequestState {
+  NOT_CREATED
+  OPEN
+  CHANGES_REQUESTED
+  APPROVED
+  MERGED
+}
+
+enum CiState {
+  WAITING
+  RUNNING
+  FAILED
+  PASSED
+}
+
+model User {
+  id              String           @id @default(cuid())
+  githubId        String           @unique
+  githubLogin     String
+  displayName     String?
+  level           String           @default("Java 入门 I")
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  assessments     Assessment[]
+  repositories    TrainingRepo[]
+  tasks           TaskTicket[]
+  progressRecords ProgressRecord[]
+}
+
+model Assessment {
+  id        String   @id @default(cuid())
+  userId    String
+  level     String
+  summary   String
+  score     Int
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model ProjectTemplate {
+  id          String         @id @default(cuid())
+  name        String
+  stack       String
+  sourcePath  String
+  description String
+  createdAt   DateTime       @default(now())
+  repositories TrainingRepo[]
+}
+
+model TrainingRepo {
+  id          String          @id @default(cuid())
+  userId      String
+  templateId  String
+  githubOwner String
+  githubName  String
+  cloneUrl    String
+  createdAt   DateTime        @default(now())
+  user        User            @relation(fields: [userId], references: [id])
+  template    ProjectTemplate @relation(fields: [templateId], references: [id])
+  tasks       TaskTicket[]
+}
+
+model TaskTicket {
+  id                 String            @id @default(cuid())
+  userId             String
+  repositoryId       String
+  title              String
+  description        String
+  status             TaskStatus        @default(CLAIMED)
+  branchName         String
+  acceptanceCriteria Json
+  editableScope      Json
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+  user               User              @relation(fields: [userId], references: [id])
+  repository         TrainingRepo      @relation(fields: [repositoryId], references: [id])
+  pullRequest        PullRequestRecord?
+}
+
+model PullRequestRecord {
+  id              String           @id @default(cuid())
+  taskId          String           @unique
+  githubNumber    Int?
+  githubUrl       String?
+  state           PullRequestState @default(NOT_CREATED)
+  ciState         CiState          @default(WAITING)
+  reviewSummary   String?
+  lastSyncedAt    DateTime?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  task            TaskTicket       @relation(fields: [taskId], references: [id])
+  reviewResults   ReviewResult[]
+}
+
+model ReviewResult {
+  id            String            @id @default(cuid())
+  pullRequestId String
+  decision      PullRequestState
+  summary       String
+  comments      Json
+  createdAt     DateTime          @default(now())
+  pullRequest   PullRequestRecord @relation(fields: [pullRequestId], references: [id])
+}
+
+model ProgressRecord {
+  id        String   @id @default(cuid())
+  userId    String
+  metric    String
+  value     String
+  detail    String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+}
