@@ -1,9 +1,11 @@
 import { ClipboardCheck, Code2, GitBranch } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
 import { Section, SectionHeader } from "@/components/ui";
-import { assessmentQuestions } from "@/lib/mock-data";
+import { getDashboardData } from "@/lib/data";
 
-export default function AssessmentPage() {
+export default async function AssessmentPage() {
+  const { assessmentQuestions } = await getDashboardData();
+
   return (
     <AppShell>
       <div className="grid gap-5 xl:grid-cols-[minmax(0,1.2fr)_360px]">

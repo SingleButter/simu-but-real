@@ -1,9 +1,11 @@
 import { CheckCircle2, FileCode2 } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
 import { CommandBlock, Section, SectionHeader } from "@/components/ui";
-import { currentTask } from "@/lib/mock-data";
+import { getDashboardData } from "@/lib/data";
 
-export default function TasksPage() {
+export default async function TasksPage() {
+  const { currentTask } = await getDashboardData();
+
   return (
     <AppShell>
       <div className="grid gap-5 xl:grid-cols-[minmax(0,1.2fr)_420px]">

@@ -21,6 +21,19 @@ npm run dev
 
 打开 `http://localhost:3000`。
 
+## Database Setup
+
+本地数据库使用 PostgreSQL。推荐用 Docker Compose 启动：
+
+```bash
+docker compose up -d postgres
+cp .env.example .env.local
+npm run db:migrate
+npm run db:seed
+```
+
+当前页面通过 `lib/data.ts` 读取数据库。没有配置 `DATABASE_URL` 或数据库不可用时，页面会自动回退到内置 mock 数据，方便先看 UI。
+
 ## Project Structure
 
 ```text
@@ -35,7 +48,7 @@ templates/java-task-api Java Spring Boot training repository template
 
 ## Development Strategy
 
-平台主体用 TypeScript 快速迭代，训练项目用 Java 模拟真实后端新人工作。MVP 当前以 mock 数据展示完整产品闭环，后续阶段接入真实 GitHub App、PostgreSQL、BullMQ worker 和 LLM API。
+平台主体用 TypeScript 快速迭代，训练项目用 Java 模拟真实后端新人工作。MVP 当前已具备 PostgreSQL/Prisma 数据地基，后续阶段继续接入真实 GitHub App、BullMQ worker 和 LLM API。
 
 ## Secrets
 

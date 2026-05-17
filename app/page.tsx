@@ -10,10 +10,13 @@ import {
 } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
 import { CommandBlock, IconLabel, Section, SectionHeader } from "@/components/ui";
-import { currentTask, progressMetrics, pullRequestStatus } from "@/lib/mock-data";
+import { getDashboardData } from "@/lib/data";
 import { metricClass, workflowClass } from "@/lib/status";
 
-export default function HomePage() {
+export default async function HomePage() {
+  const { currentTask, progressMetrics, pullRequestStatus } =
+    await getDashboardData();
+
   return (
     <AppShell>
       <div className="grid gap-5 xl:grid-cols-[minmax(0,1.45fr)_minmax(340px,0.85fr)]">

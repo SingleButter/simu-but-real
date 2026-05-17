@@ -1,10 +1,12 @@
 import { Activity, TrendingUp } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
 import { Section, SectionHeader } from "@/components/ui";
-import { progressMetrics } from "@/lib/mock-data";
+import { getDashboardData } from "@/lib/data";
 import { metricClass } from "@/lib/status";
 
-export default function ProgressPage() {
+export default async function ProgressPage() {
+  const { progressMetrics } = await getDashboardData();
+
   return (
     <AppShell>
       <div className="grid gap-5 xl:grid-cols-[minmax(0,1.1fr)_420px]">

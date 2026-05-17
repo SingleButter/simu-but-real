@@ -1,9 +1,11 @@
 import { Bot, GitPullRequest, MessageSquareWarning } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
 import { Section, SectionHeader } from "@/components/ui";
-import { pullRequestStatus } from "@/lib/mock-data";
+import { getDashboardData } from "@/lib/data";
 
-export default function ReviewPage() {
+export default async function ReviewPage() {
+  const { pullRequestStatus } = await getDashboardData();
+
   return (
     <AppShell>
       <div className="grid gap-5 xl:grid-cols-[minmax(0,1.15fr)_420px]">

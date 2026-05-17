@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server";
 import { reviewPullRequest } from "@/packages/agents";
-import { currentTask, pullRequestStatus } from "@/lib/mock-data";
+import { getDashboardData } from "@/lib/data";
 
 export async function POST() {
+  const { currentTask, pullRequestStatus } = await getDashboardData();
+
   const result = reviewPullRequest({
     task: currentTask,
     pullRequest: pullRequestStatus,
