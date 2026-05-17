@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getServerSession } from "next-auth";
 import {
   Activity,
   ClipboardCheck,
@@ -8,6 +9,8 @@ import {
   Settings,
   TerminalSquare
 } from "lucide-react";
+import { SignInButton, SignOutButton } from "@/components/auth-actions";
+import { authOptions } from "@/lib/auth";
 
 const navItems = [
   { label: "工作台", href: "/", icon: LayoutDashboard },
@@ -18,7 +21,13 @@ const navItems = [
   { label: "项目设置", href: "/settings", icon: Settings }
 ] as const;
 
-export function AppShell({ children }: { children: React.ReactNode }) {
+export async function AppShell({ children }: { children: React.ReactNode }) {
+  const session = await getServerSession(authOptions);
+  const userInitial =
+    session?.user?.githubLogin?.charAt(0).toUpperCase() ??
+    session?.user?.name?.charAt(0).toUpperCase() ??
+    "W";
+
   return (
     <main className="min-h-screen bg-surface text-ink">
       <aside className="fixed inset-y-0 left-0 hidden w-64 border-r border-line bg-white/88 px-4 py-5 backdrop-blur lg:block">
@@ -69,11 +78,18 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <h1 className="mt-1 text-xl font-semibold">今天的开发工作</h1>
             </div>
             <div className="flex items-center gap-3">
-              <span className="hidden rounded-md border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-sm font-medium text-emerald-800 sm:inline-flex">
-                GitHub 已连接
-              </span>
+              {session?.user ? (
+                <>
+                  <span className="hidden rounded-md border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-sm font-medium text-emerald-800 sm:inline-flex">
+                    @{session.user.githubLogin ?? session.user.name}
+                  </span>
+                  <SignOutButton />
+                </>
+              ) : (
+                <SignInButton />
+              )}
               <span className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-900 text-sm font-semibold text-white">
-                W
+                {userInitial}
               </span>
             </div>
           </div>

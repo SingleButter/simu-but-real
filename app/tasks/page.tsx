@@ -1,10 +1,13 @@
 import { CheckCircle2, FileCode2 } from "lucide-react";
+import { getServerSession } from "next-auth";
 import { AppShell } from "@/components/app-shell";
 import { CommandBlock, Section, SectionHeader } from "@/components/ui";
+import { authOptions } from "@/lib/auth";
 import { getDashboardData } from "@/lib/data";
 
 export default async function TasksPage() {
-  const { currentTask } = await getDashboardData();
+  const session = await getServerSession(authOptions);
+  const { currentTask } = await getDashboardData(session?.user?.githubId);
 
   return (
     <AppShell>

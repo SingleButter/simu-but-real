@@ -15,6 +15,11 @@ export default function SettingsPage() {
               detail: "company-simu-dev / 后续通过环境变量配置"
             },
             {
+              icon: Github,
+              title: "GitHub OAuth",
+              detail: "已接入 NextAuth，使用 GitHub 登录识别真实用户"
+            },
+            {
               icon: KeyRound,
               title: "GitHub App",
               detail: "使用 installation token 操作训练仓库"

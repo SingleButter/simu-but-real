@@ -10,12 +10,15 @@ import {
 } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
 import { CommandBlock, IconLabel, Section, SectionHeader } from "@/components/ui";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 import { getDashboardData } from "@/lib/data";
 import { metricClass, workflowClass } from "@/lib/status";
 
 export default async function HomePage() {
+  const session = await getServerSession(authOptions);
   const { currentTask, progressMetrics, pullRequestStatus } =
-    await getDashboardData();
+    await getDashboardData(session?.user?.githubId);
 
   return (
     <AppShell>

@@ -36,7 +36,7 @@ type PipelineJson = Array<{
 type CheckRunJson = PullRequestStatus["checkRuns"];
 type ReviewCommentJson = PullRequestStatus["comments"];
 
-export async function getDashboardData(): Promise<DashboardData> {
+export async function getDashboardData(githubId?: string): Promise<DashboardData> {
   if (!process.env.DATABASE_URL) {
     return fallbackDashboardData();
   }
@@ -44,6 +44,13 @@ export async function getDashboardData(): Promise<DashboardData> {
   try {
     const [task, progressRecords, questions] = await Promise.all([
       prisma.taskTicket.findFirst({
+        where: githubId
+          ? {
+              user: {
+                githubId
+              }
+            }
+          : undefined,
         orderBy: { createdAt: "desc" },
         include: {
           repository: {
@@ -55,6 +62,13 @@ export async function getDashboardData(): Promise<DashboardData> {
         }
       }),
       prisma.progressRecord.findMany({
+        where: githubId
+          ? {
+              user: {
+                githubId
+              }
+            }
+          : undefined,
         orderBy: { createdAt: "asc" },
         take: 8
       }),

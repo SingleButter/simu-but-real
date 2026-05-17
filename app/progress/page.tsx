@@ -1,11 +1,14 @@
 import { Activity, TrendingUp } from "lucide-react";
+import { getServerSession } from "next-auth";
 import { AppShell } from "@/components/app-shell";
 import { Section, SectionHeader } from "@/components/ui";
+import { authOptions } from "@/lib/auth";
 import { getDashboardData } from "@/lib/data";
 import { metricClass } from "@/lib/status";
 
 export default async function ProgressPage() {
-  const { progressMetrics } = await getDashboardData();
+  const session = await getServerSession(authOptions);
+  const { progressMetrics } = await getDashboardData(session?.user?.githubId);
 
   return (
     <AppShell>

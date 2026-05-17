@@ -1,10 +1,13 @@
 import { ClipboardCheck, Code2, GitBranch } from "lucide-react";
+import { getServerSession } from "next-auth";
 import { AppShell } from "@/components/app-shell";
 import { Section, SectionHeader } from "@/components/ui";
+import { authOptions } from "@/lib/auth";
 import { getDashboardData } from "@/lib/data";
 
 export default async function AssessmentPage() {
-  const { assessmentQuestions } = await getDashboardData();
+  const session = await getServerSession(authOptions);
+  const { assessmentQuestions } = await getDashboardData(session?.user?.githubId);
 
   return (
     <AppShell>
