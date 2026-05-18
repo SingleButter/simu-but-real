@@ -12,6 +12,15 @@ Simu but Real 是一个面向 Java 后端求职新人的企业开发流程模拟
 - Dev Container 推荐开发环境
 - GitHub Actions CI 模板
 
+## Documentation
+
+项目文档集中维护在 [`docs/`](./docs/README.md)：
+
+- [`docs/product-requirements.md`](./docs/product-requirements.md)：产品需求、MVP 范围和关键决策
+- [`docs/enterprise-workflow.md`](./docs/enterprise-workflow.md)：平台模拟的企业开发流程
+- [`docs/development-progress.md`](./docs/development-progress.md)：当前进度、验证结果和已知限制
+- [`docs/development-roadmap.md`](./docs/development-roadmap.md)：后续开发阶段计划
+
 ## Local Development
 
 ```bash
