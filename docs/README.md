@@ -12,6 +12,8 @@
   - 已完成能力、真实仓库状态、验证结果、已知限制。
 - [开发阶段计划](./development-roadmap.md)
   - 从 MVP 到 GitHub App、AI Review、多人协作训练的阶段拆分。
+- [GitHub Webhook 本地验证](./webhook-local-testing.md)
+  - Phase 5 第一版 webhook 状态同步的 fixture 回放和真实 GitHub 接入步骤。
 
 ## 维护原则
 

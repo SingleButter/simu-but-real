@@ -1,0 +1,21 @@
+{
+  "action": "opened",
+  "repository": {
+    "full_name": "SingleButter/sbr-java-task-api-singlebutter"
+  },
+  "pull_request": {
+    "number": 1,
+    "title": "fix: validate completed task status transitions",
+    "html_url": "https://github.com/SingleButter/sbr-java-task-api-singlebutter/pull/1",
+    "state": "open",
+    "merged": false,
+    "head": {
+      "ref": "task/validate-task-status",
+      "sha": "fixture-head-sha"
+    },
+    "base": {
+      "ref": "main",
+      "sha": "fixture-base-sha"
+    }
+  }
+}

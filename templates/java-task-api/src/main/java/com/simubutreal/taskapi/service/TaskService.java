@@ -18,7 +18,7 @@ public class TaskService {
 
     public TaskService() {
         tasks.add(new TaskItem(UUID.randomUUID(), "Prepare API review", TaskStatus.TODO, LocalDate.now().plusDays(2), 2));
-        tasks.add(new TaskItem(UUID.randomUUID(), "Fix pagination bug", TaskStatus.IN_PROGRESS, LocalDate.now().plusDays(1), 1));
+        tasks.add(new TaskItem(UUID.randomUUID(), "Validate task status changes", TaskStatus.IN_PROGRESS, LocalDate.now().plusDays(1), 1));
         tasks.add(new TaskItem(UUID.randomUUID(), "Write service tests", TaskStatus.TODO, LocalDate.now().plusDays(5), 3));
         tasks.add(new TaskItem(UUID.randomUUID(), "Update README", TaskStatus.DONE, LocalDate.now().plusDays(7), 4));
     }
@@ -52,21 +52,25 @@ public class TaskService {
     }
 
     public TaskItem completeTask(UUID id) {
+        return updateTaskStatus(id, TaskStatus.DONE);
+    }
+
+    public TaskItem updateTaskStatus(UUID id, TaskStatus status) {
         TaskItem existing = tasks.stream()
             .filter(task -> task.id().equals(id))
             .findFirst()
             .orElseThrow(() -> new NoSuchElementException("Task not found"));
 
-        TaskItem completed = new TaskItem(
+        TaskItem updated = new TaskItem(
             existing.id(),
             existing.title(),
-            TaskStatus.DONE,
+            status,
             existing.dueDate(),
             existing.priority()
         );
         tasks.remove(existing);
-        tasks.add(completed);
-        return completed;
+        tasks.add(updated);
+        return updated;
     }
 
     private Comparator<TaskItem> resolveComparator(String sortBy, String direction) {

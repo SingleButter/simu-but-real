@@ -1,10 +1,10 @@
 # 当前开发进度
 
-更新时间：2026-05-18
+更新时间：2026-05-19
 
 ## 当前阶段
 
-项目处于 MVP 原型阶段。平台主应用、数据库基础、GitHub OAuth 登录、首次任务分配、Java 模板和真实训练仓库已经打通。GitHub App 自动化、Webhook 状态同步和 AI Review 仍在后续阶段。
+项目处于 MVP 原型阶段。平台主应用、数据库基础、GitHub OAuth 登录、首次任务分配、Java 模板、真实训练仓库和第一轮真实 PR 训练闭环已经打通。GitHub Webhook 状态同步已完成第一版代码竖切，后续需要配置真实 webhook 地址并继续完善事件覆盖。GitHub App 自动化和 AI Review 仍在后续阶段。
 
 ## 已完成
 
@@ -124,7 +124,7 @@ templates/java-task-api
 
 ```text
 mvn test
-Tests run: 2, Failures: 0, Errors: 0
+Tests run: 4, Failures: 0, Errors: 0
 BUILD SUCCESS
 ```
 
@@ -150,6 +150,47 @@ GitHub Actions 状态：
 Java Task API CI: completed success
 ```
 
+### 第一轮真实训练任务
+
+已完成第一轮真实任务闭环：
+
+```text
+task id: SBR-JAVA-373192
+title: 补全任务状态校验逻辑
+repository: SingleButter/sbr-java-task-api-singlebutter
+branch: task/validate-task-status
+pull request: https://github.com/SingleButter/sbr-java-task-api-singlebutter/pull/1
+merged at: 2026-05-19 12:35:48 Asia/Shanghai
+```
+
+用户已完成：
+
+- 本地同步训练仓库。
+- 在 `task/validate-task-status` 分支补充失败测试。
+- 实现已完成任务不能回退到 `TODO` 或 `IN_PROGRESS` 的状态校验。
+- 本地运行 `mvn test`。
+- commit、push 并创建 PR。
+- GitHub Actions 通过。
+- PR 合并到 `main`。
+- 本地训练仓库 `main` 已同步。
+
+### GitHub Webhook 状态同步
+
+已实现第一版 webhook 处理：
+
+- `app/api/github/webhook/route.ts`
+- `scripts/replay-github-webhook.ts`
+- `scripts/github-webhook-fixtures`
+- `docs/webhook-local-testing.md`
+- 支持 `GITHUB_WEBHOOK_SECRET` 存在时校验 `x-hub-signature-256`。
+- 支持 `pull_request` 事件同步 PR 编号、标题、URL、状态和任务状态。
+- 支持 `check_run`、`check_suite`、`workflow_run` 事件同步 CI 状态。
+- PR merged 时将任务状态更新为 `COMPLETE`，并更新 pipeline。
+- 首页和 `/review` 页面已展示真实 PR 编号、状态和链接。
+- `lib/mock-data.ts` 和 `prisma/seed.ts` 已更新为第一轮任务完成状态。
+- 已用 fixture 回放验证 `opened -> CI passed -> merged` 流程，数据库最终状态为 `COMPLETE / MERGED / PASSED`。
+- 已用 Cloudflare Tunnel 配置真实 GitHub webhook，GitHub `ping` delivery 返回 `200`，确认真实外部请求可以到达本地平台。
+
 ### 本地工具
 
 已完成：
@@ -174,12 +215,16 @@ Apache Maven 3.9.15
 - `npm run typecheck` 通过。
 - `npm run lint` 通过。
 - `npm run build` 通过。
+- `npm run webhook:replay` 已对本地 3001 服务回放成功。
+- GitHub webhook `ping` delivery 已通过 Cloudflare Tunnel 连接到本地 3001 服务。
 - 本地开发服务可在 `http://localhost:3000` 访问。
 
 训练仓库验证：
 
 - `main` 和 `task/validate-task-status` 分支已存在。
-- GitHub Actions 已对 `main` 运行并通过。
+- PR `#1` 已从 `task/validate-task-status` 合并到 `main`。
+- GitHub Actions 已对 PR 运行并通过。
+- 本地训练仓库 `main` 已同步。
 - 本地模板 `mvn test` 已通过。
 
 ## 已知限制
@@ -215,22 +260,11 @@ Apache Maven 3.9.15
 
 ## 当前建议下一步
 
-进入第一轮真实训练任务：
+继续推进 Phase 5：用真实 PR/CI 事件验证完整自动同步。
 
-```bash
-cd ~/Develop
-git clone git@github.com:SingleButter/sbr-java-task-api-singlebutter.git
-cd sbr-java-task-api-singlebutter
-git checkout task/validate-task-status
-mvn test
-```
+优先目标：
 
-然后按企业流程：
-
-1. 阅读任务和允许修改范围。
-2. 查看 `TaskService.java`、`TaskStatus.java` 和 `TaskServiceTest.java`。
-3. 先写非法状态流转测试。
-4. 让测试失败。
-5. 实现最小修复。
-6. 本地运行 `mvn test`。
-7. commit、push、创建 PR。
+1. 创建第二个训练任务或临时测试 PR。
+2. 用真实 `pull_request`、`check_run` 和 merge 事件验证 `PullRequestRecord.state`、`PullRequestRecord.ciState` 和 `lastSyncedAt` 更新。
+3. 将 webhook URL 从临时 tunnel 迁移到稳定部署地址。
+4. 补充 webhook 自动化测试，覆盖 open、synchronize、CI failed、CI passed、merged。

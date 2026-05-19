@@ -1,59 +1,59 @@
 import type { ProgressMetric, PullRequestStatus, TrainingTask } from "@/lib/types";
 
 export const currentTask: TrainingTask = {
-  id: "SBR-JAVA-004",
-  title: "修复任务分页排序问题",
+  id: "SBR-JAVA-373192",
+  title: "补全任务状态校验逻辑",
   summary:
-    "任务列表接口在按截止时间排序时会忽略分页参数。你需要修复 service 层排序逻辑，并补充分页排序测试。",
-  repository: "company-simu-dev/u_001_task-api-training",
-  branch: "task/fix-task-pagination",
+    "任务 API 当前允许把已完成任务重新改回待处理状态。你需要在 service 层补充状态流转校验，并用测试覆盖非法流转。",
+  repository: "SingleButter/sbr-java-task-api-singlebutter",
+  branch: "task/validate-task-status",
   stack: ["Java 21", "Spring Boot", "Maven", "JUnit 5"],
-  status: "in_progress",
+  status: "complete",
   acceptanceCriteria: [
-    "GET /api/tasks 支持按 dueDate 升序和降序排序",
-    "分页参数 page 和 size 在排序场景下仍然生效",
-    "新增至少 2 个覆盖分页排序的 service 或 controller 测试",
-    "不修改任务创建、状态流转和错误响应格式"
+    "已完成任务不能被改回 TODO 或 IN_PROGRESS",
+    "非法状态流转返回清晰的业务错误",
+    "新增至少 2 个状态流转相关测试",
+    "不修改任务创建接口和响应字段结构"
   ],
   editableScope: [
     "src/main/java/com/simubutreal/taskapi/service/TaskService.java",
-    "src/main/java/com/simubutreal/taskapi/controller/TaskController.java",
+    "src/main/java/com/simubutreal/taskapi/model/TaskStatus.java",
     "src/test/java/com/simubutreal/taskapi/TaskServiceTest.java"
   ],
   mentorHint:
-    "先阅读 TaskService 和 TaskController，确认分页对象在哪里创建，再补一个失败测试让问题暴露出来。",
+    "先从测试入手，写出“已完成任务不能回退到待处理”的失败用例，再实现最小范围的 service 层校验。",
   commands: {
     clone:
-      "git clone git@github.com:company-simu-dev/u_001_task-api-training.git",
+      "git clone git@github.com:SingleButter/sbr-java-task-api-singlebutter.git",
     test: "mvn test",
     devContainer: "VS Code / Cursor: Reopen in Container"
   },
   pipeline: [
     { label: "已领取", state: "done" },
-    { label: "开发中", state: "active" },
-    { label: "CI 待运行", state: "pending" },
-    { label: "Review 待提交", state: "pending" }
+    { label: "本地开发", state: "done" },
+    { label: "CI 已通过", state: "done" },
+    { label: "已合并", state: "done" }
   ]
 };
 
 export const pullRequestStatus: PullRequestStatus = {
-  number: null,
-  title: "修复任务分页排序问题",
-  state: "not_created",
-  ciState: "waiting",
-  reviewSummary:
-    "还没有检测到 PR。提交分支后，平台会同步 GitHub Actions 结果并启动 AI review。",
+  number: 1,
+  title: "fix: validate completed task status transitions",
+  githubUrl: "https://github.com/SingleButter/sbr-java-task-api-singlebutter/pull/1",
+  state: "merged",
+  ciState: "passed",
+  reviewSummary: "PR 已合并，任务完成。",
   checkRuns: [
-    { name: "mvn test", status: "waiting", duration: "--" },
-    { name: "branch protection", status: "waiting", duration: "--" },
-    { name: "ai-review-gate", status: "waiting", duration: "--" }
+    { name: "Java Task API CI", status: "passed", duration: "--" },
+    { name: "mvn test", status: "passed", duration: "--" },
+    { name: "branch protection", status: "passed", duration: "--" }
   ],
   comments: [
     {
       file: "TaskService.java",
-      line: 42,
+      line: 1,
       severity: "info",
-      message: "PR 创建后，Review Agent 会优先检查分页参数是否在排序分支中保留。"
+      message: "首个真实 PR 已完成并合并。下一步接入 GitHub webhook 自动同步状态。"
     }
   ]
 };

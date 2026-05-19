@@ -1,0 +1,25 @@
+{
+  "action": "completed",
+  "repository": {
+    "full_name": "SingleButter/sbr-java-task-api-singlebutter"
+  },
+  "check_run": {
+    "name": "Java Task API CI",
+    "status": "completed",
+    "conclusion": "success",
+    "html_url": "https://github.com/SingleButter/sbr-java-task-api-singlebutter/actions",
+    "pull_requests": [
+      {
+        "number": 1,
+        "head": {
+          "ref": "task/validate-task-status",
+          "sha": "fixture-head-sha"
+        },
+        "base": {
+          "ref": "main",
+          "sha": "fixture-base-sha"
+        }
+      }
+    ]
+  }
+}

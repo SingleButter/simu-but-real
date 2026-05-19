@@ -27,6 +27,7 @@ export type TrainingTask = {
 export type PullRequestStatus = {
   number: number | null;
   title: string;
+  githubUrl: string | null;
   state: "not_created" | "open" | "changes_requested" | "approved" | "merged";
   ciState: "waiting" | "running" | "failed" | "passed";
   reviewSummary: string;

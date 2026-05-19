@@ -89,7 +89,7 @@ SingleButter/sbr-java-task-api-singlebutter
 
 ## Phase 4: 用户完成第一轮真实任务
 
-状态：下一步
+状态：已完成
 
 目标：
 
@@ -113,9 +113,16 @@ mvn test
 - 用户提交的 PR 能触发 GitHub Actions。
 - CI 状态可以被人工或平台读取。
 
+完成记录：
+
+- PR：`https://github.com/SingleButter/sbr-java-task-api-singlebutter/pull/1`
+- 标题：`fix: validate completed task status transitions`
+- 合并时间：`2026-05-19 12:35:48 Asia/Shanghai`
+- 用户本地训练仓库 `main` 已同步。
+
 ## Phase 5: GitHub Webhook 状态同步
 
-状态：未开始
+状态：进行中
 
 目标：
 
@@ -125,10 +132,12 @@ mvn test
 
 需要实现：
 
-- GitHub App 或 webhook secret。
+- GitHub App 或 webhook secret。第一版 secret 校验已实现。
 - 本地开发临时公网地址。
-- `app/api/github/webhook/route.ts` 的真实事件处理。
-- PullRequestRecord 状态更新。
+- `app/api/github/webhook/route.ts` 的真实事件处理。第一版已支持 PR 和 CI 事件。
+- PullRequestRecord 状态更新。第一版已实现 PR 编号、URL、状态、CI 状态和同步时间更新。
+- 本地 fixture replay。已支持 `opened -> CI passed -> merged` 流程回放。
+- 真实 webhook 连接。已通过 Cloudflare Tunnel 配置训练仓库 webhook，并确认 GitHub `ping` delivery 返回 `200`。
 
 关键事件：
 

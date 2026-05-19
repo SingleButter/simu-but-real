@@ -115,6 +115,7 @@ export async function getDashboardData(githubId?: string): Promise<DashboardData
       pullRequestStatus: {
         number: task.pullRequest.githubNumber,
         title: task.pullRequest.title,
+        githubUrl: task.pullRequest.githubUrl,
         state: mapPullRequestState(task.pullRequest.state),
         ciState: mapCiState(task.pullRequest.ciState),
         reviewSummary:
