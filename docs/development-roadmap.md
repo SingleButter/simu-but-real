@@ -138,6 +138,7 @@ mvn test
 - PullRequestRecord 状态更新。第一版已实现 PR 编号、URL、状态、CI 状态和同步时间更新。
 - 本地 fixture replay。已支持 `opened -> CI passed -> merged` 流程回放。
 - 真实 webhook 连接。已通过 Cloudflare Tunnel 配置训练仓库 webhook，并确认 GitHub `ping` delivery 返回 `200`。
+- 平台侧实现已通过 `https://github.com/SingleButter/simu-but-real/pull/1` 合并到 `main`，合并提交为 `bccce4a`。
 
 关键事件：
 

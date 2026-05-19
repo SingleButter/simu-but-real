@@ -178,6 +178,12 @@ merged at: 2026-05-19 12:35:48 Asia/Shanghai
 
 已实现第一版 webhook 处理：
 
+```text
+platform PR: https://github.com/SingleButter/simu-but-real/pull/1
+merged commit: bccce4a
+branch: codex/github-webhook-sync
+```
+
 - `app/api/github/webhook/route.ts`
 - `scripts/replay-github-webhook.ts`
 - `scripts/github-webhook-fixtures`
@@ -190,6 +196,7 @@ merged at: 2026-05-19 12:35:48 Asia/Shanghai
 - `lib/mock-data.ts` 和 `prisma/seed.ts` 已更新为第一轮任务完成状态。
 - 已用 fixture 回放验证 `opened -> CI passed -> merged` 流程，数据库最终状态为 `COMPLETE / MERGED / PASSED`。
 - 已用 Cloudflare Tunnel 配置真实 GitHub webhook，GitHub `ping` delivery 返回 `200`，确认真实外部请求可以到达本地平台。
+- 平台侧 PR 已合并到 `main`，主工作区和 Codex worktree 均已同步到 `bccce4a`。
 
 ### 本地工具
 
@@ -217,6 +224,7 @@ Apache Maven 3.9.15
 - `npm run build` 通过。
 - `npm run webhook:replay` 已对本地 3001 服务回放成功。
 - GitHub webhook `ping` delivery 已通过 Cloudflare Tunnel 连接到本地 3001 服务。
+- 平台仓库 `main` 已同步到合并提交 `bccce4a`。
 - 本地开发服务可在 `http://localhost:3000` 访问。
 
 训练仓库验证：
