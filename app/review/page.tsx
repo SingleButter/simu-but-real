@@ -8,6 +8,7 @@ import { getDashboardData } from "@/lib/data";
 export default async function ReviewPage() {
   const session = await getServerSession(authOptions);
   const { pullRequestStatus } = await getDashboardData(session?.user?.githubId);
+  const label = pullRequestLabel(pullRequestStatus.state, pullRequestStatus.number);
 
   return (
     <AppShell>
@@ -36,8 +37,16 @@ export default async function ReviewPage() {
           <div className="space-y-4">
             <div className="flex items-center gap-3 rounded-md border border-line bg-slate-50 p-3">
               <GitPullRequest className="h-4 w-4 text-slate-500" />
-              <span className="text-sm font-medium">PR 未创建</span>
+              <span className="text-sm font-medium">{label}</span>
             </div>
+            {pullRequestStatus.githubUrl ? (
+              <a
+                className="block rounded-md border border-blue-200 bg-blue-50 px-3 py-2 text-sm font-medium text-blue-800 transition hover:bg-blue-100"
+                href={pullRequestStatus.githubUrl}
+              >
+                打开 GitHub PR
+              </a>
+            ) : null}
             <p className="text-sm leading-6 text-muted">
               创建 PR 后，平台会通过 GitHub webhook 同步 diff、CI 和 review 状态，并在 GitHub 行内评论具体问题。
             </p>
@@ -46,4 +55,20 @@ export default async function ReviewPage() {
       </div>
     </AppShell>
   );
+}
+
+function pullRequestLabel(
+  state: "not_created" | "open" | "changes_requested" | "approved" | "merged",
+  number: number | null
+) {
+  const prefix = number ? `PR #${number}` : "PR";
+  const labels = {
+    not_created: "未创建",
+    open: "已创建",
+    changes_requested: "需修改",
+    approved: "已通过",
+    merged: "已合并"
+  };
+
+  return `${prefix} ${labels[state]}`;
 }

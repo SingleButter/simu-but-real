@@ -111,11 +111,28 @@ export default async function HomePage() {
                 icon={GitPullRequest}
                 label="分支"
               />
-              <IconLabel
-                detail={pullRequestStatus.reviewSummary}
-                icon={Clock3}
-                label="PR 未创建"
-              />
+              <div className="flex items-start gap-3">
+                <span className="mt-0.5 rounded-md border border-line bg-slate-50 p-2 text-slate-600">
+                  <Clock3 className="h-4 w-4" />
+                </span>
+                <span>
+                  <span className="block text-sm font-medium">
+                    {pullRequestLabel(pullRequestStatus.state, pullRequestStatus.number)}
+                  </span>
+                  {pullRequestStatus.githubUrl ? (
+                    <a
+                      className="mt-0.5 block text-sm leading-5 text-blue-700 hover:text-blue-900"
+                      href={pullRequestStatus.githubUrl}
+                    >
+                      {pullRequestStatus.githubUrl}
+                    </a>
+                  ) : (
+                    <span className="mt-0.5 block text-sm leading-5 text-muted">
+                      {pullRequestStatus.reviewSummary}
+                    </span>
+                  )}
+                </span>
+              </div>
             </div>
           </Section>
 
@@ -162,4 +179,20 @@ export default async function HomePage() {
       </div>
     </AppShell>
   );
+}
+
+function pullRequestLabel(
+  state: "not_created" | "open" | "changes_requested" | "approved" | "merged",
+  number: number | null
+) {
+  const prefix = number ? `PR #${number}` : "PR";
+  const labels = {
+    not_created: "未创建",
+    open: "已创建",
+    changes_requested: "需修改",
+    approved: "已通过",
+    merged: "已合并"
+  };
+
+  return `${prefix} ${labels[state]}`;
 }
