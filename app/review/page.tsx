@@ -1,20 +1,27 @@
 import { Bot, GitPullRequest, MessageSquareWarning } from "lucide-react";
 import { getServerSession } from "next-auth";
 import { AppShell } from "@/components/app-shell";
+import { ReviewRunButton } from "@/components/review-run-button";
 import { Section, SectionHeader } from "@/components/ui";
 import { authOptions } from "@/lib/auth";
 import { getDashboardData } from "@/lib/data";
 
 export default async function ReviewPage() {
   const session = await getServerSession(authOptions);
-  const { pullRequestStatus } = await getDashboardData(session?.user?.githubId);
+  const { currentTask, pullRequestStatus } = await getDashboardData(
+    session?.user?.githubId
+  );
   const label = pullRequestLabel(pullRequestStatus.state, pullRequestStatus.number);
 
   return (
     <AppShell>
       <div className="grid gap-5 xl:grid-cols-[minmax(0,1.15fr)_420px]">
         <Section>
-          <SectionHeader eyebrow="AI Review" title="Review 摘要" />
+          <SectionHeader
+            action={<ReviewRunButton taskId={currentTask.id} />}
+            eyebrow="AI Review"
+            title="Review 摘要"
+          />
           <div className="flex gap-3 rounded-md border border-blue-200 bg-blue-50 p-4 text-blue-900">
             <Bot className="mt-0.5 h-5 w-5 shrink-0" />
             <p className="text-sm leading-6">{pullRequestStatus.reviewSummary}</p>

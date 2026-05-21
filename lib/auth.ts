@@ -10,13 +10,24 @@ type GitHubProfile = {
   name?: string | null;
 };
 
+export const isGitHubOAuthConfigured = Boolean(
+  process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET
+);
+
 export const authOptions: NextAuthOptions = {
-  providers: [
-    GitHubProvider({
-      clientId: process.env.GITHUB_CLIENT_ID ?? "",
-      clientSecret: process.env.GITHUB_CLIENT_SECRET ?? ""
-    })
-  ],
+  secret:
+    process.env.NEXTAUTH_SECRET ??
+    (process.env.NODE_ENV === "production"
+      ? undefined
+      : "simu-but-real-local-development-secret"),
+  providers: isGitHubOAuthConfigured
+    ? [
+        GitHubProvider({
+          clientId: process.env.GITHUB_CLIENT_ID ?? "",
+          clientSecret: process.env.GITHUB_CLIENT_SECRET ?? ""
+        })
+      ]
+    : [],
   session: {
     strategy: "jwt"
   },
@@ -65,6 +76,15 @@ export const authOptions: NextAuthOptions = {
   },
   pages: {
     signIn: "/"
+  },
+  logger: {
+    error(code, metadata) {
+      if (shouldSuppressLocalAuthError(code)) {
+        return;
+      }
+
+      console.error(`[next-auth][error][${code}]`, metadata);
+    }
   }
 };
 
@@ -77,4 +97,12 @@ function withUserSession(session: Session, token: JWT): Session {
   }
 
   return session;
+}
+
+function shouldSuppressLocalAuthError(code: string) {
+  return (
+    process.env.NODE_ENV !== "production" &&
+    (code === "JWT_SESSION_ERROR" ||
+      (!isGitHubOAuthConfigured && code === "SIGNIN_OAUTH_ERROR"))
+  );
 }

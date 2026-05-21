@@ -10,7 +10,7 @@ import {
   TerminalSquare
 } from "lucide-react";
 import { SignInButton, SignOutButton } from "@/components/auth-actions";
-import { authOptions } from "@/lib/auth";
+import { authOptions, isGitHubOAuthConfigured } from "@/lib/auth";
 
 const navItems = [
   { label: "工作台", href: "/", icon: LayoutDashboard },
@@ -86,7 +86,7 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
                   <SignOutButton />
                 </>
               ) : (
-                <SignInButton />
+                <SignInButton enabled={isGitHubOAuthConfigured} />
               )}
               <span className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-900 text-sm font-semibold text-white">
                 {userInitial}

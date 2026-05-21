@@ -58,7 +58,7 @@ export async function getDashboardData(githubId?: string): Promise<DashboardData
       }
     }
 
-    const [task, progressRecords, questions] = await Promise.all([
+    const [task, questions] = await Promise.all([
       prisma.taskTicket.findFirst({
         where: githubId
           ? {
@@ -77,17 +77,6 @@ export async function getDashboardData(githubId?: string): Promise<DashboardData
           pullRequest: true
         }
       }),
-      prisma.progressRecord.findMany({
-        where: githubId
-          ? {
-              user: {
-                githubId
-              }
-            }
-          : undefined,
-        orderBy: { createdAt: "asc" },
-        take: 8
-      }),
       prisma.assessmentQuestion.findMany({
         orderBy: { position: "asc" }
       })
@@ -96,6 +85,14 @@ export async function getDashboardData(githubId?: string): Promise<DashboardData
     if (!task || !task.pullRequest) {
       return fallbackDashboardData();
     }
+
+    const progressRecords = await prisma.progressRecord.findMany({
+      where: {
+        userId: task.userId
+      },
+      orderBy: { createdAt: "asc" },
+      take: 12
+    });
 
     return {
       currentTask: {
@@ -124,14 +121,7 @@ export async function getDashboardData(githubId?: string): Promise<DashboardData
         checkRuns: asCheckRuns(task.pullRequest.checkRuns),
         comments: asReviewComments(task.pullRequest.comments)
       },
-      progressMetrics: progressRecords.length
-        ? progressRecords.map((record) => ({
-            label: record.metric,
-            value: record.value,
-            detail: record.detail,
-            tone: asMetricTone(record.tone)
-          }))
-        : fallbackProgressMetrics,
+      progressMetrics: toProgressMetrics(progressRecords),
       assessmentQuestions: questions.length
         ? questions.map((question) => ({
             question: question.question,
@@ -152,6 +142,32 @@ function fallbackDashboardData(): DashboardData {
     progressMetrics: fallbackProgressMetrics,
     assessmentQuestions: fallbackAssessmentQuestions
   };
+}
+
+function toProgressMetrics(
+  records: Array<{
+    metric: string;
+    value: string;
+    detail: string;
+    tone: string;
+  }>
+): ProgressMetric[] {
+  if (!records.length) {
+    return fallbackProgressMetrics;
+  }
+
+  const metrics = new Map<string, ProgressMetric>();
+
+  for (const record of records) {
+    metrics.set(record.metric, {
+      label: record.metric,
+      value: record.value,
+      detail: record.detail,
+      tone: asMetricTone(record.tone)
+    });
+  }
+
+  return Array.from(metrics.values());
 }
 
 function mapTaskStatus(status: string): TrainingTask["status"] {

@@ -122,7 +122,7 @@ mvn test
 
 ## Phase 5: GitHub Webhook 状态同步
 
-状态：进行中
+状态：已完成
 
 目标：
 
@@ -130,7 +130,7 @@ mvn test
 - 同步 PR 创建、push、CI 状态变化。
 - 将 PR 状态展示在平台页面。
 
-需要实现：
+已完成：
 
 - GitHub App 或 webhook secret。第一版 secret 校验已实现。
 - 本地开发临时公网地址。
@@ -138,6 +138,8 @@ mvn test
 - PullRequestRecord 状态更新。第一版已实现 PR 编号、URL、状态、CI 状态和同步时间更新。
 - 本地 fixture replay。已支持 `opened -> CI passed -> merged` 流程回放。
 - 真实 webhook 连接。已通过 Cloudflare Tunnel 配置训练仓库 webhook，并确认 GitHub `ping` delivery 返回 `200`。
+- 第三个真实任务已验证完整 PR 流程，平台页面能够根据 GitHub webhook 更新数据。
+- 当前临时 Cloudflare Tunnel URL 已失效；后续自动同步需要重新启动 tunnel 或迁移到稳定部署地址。
 - 平台侧实现已通过 `https://github.com/SingleButter/simu-but-real/pull/1` 合并到 `main`，合并提交为 `bccce4a`。
 
 关键事件：
@@ -149,7 +151,7 @@ mvn test
 
 ## Phase 6: AI Review Agent
 
-状态：未开始
+状态：进行中
 
 目标：
 
@@ -160,11 +162,24 @@ mvn test
 
 需要实现：
 
-- LLM API 调用层。
-- Review prompt 模板。
-- PR diff 获取。
-- ReviewResult 入库。
-- Review 页面展示真实结果。
+- LLM API 调用层。第一版已接入 DeepSeek。
+- Review prompt 模板。第一版已实现。
+- PR diff 获取。第一版已通过 GitHub API 获取 diff，依赖 `GITHUB_TOKEN`。
+- ReviewResult 入库。第一版已实现。
+- Review 页面展示真实结果。第一版已实现手动触发按钮和页面刷新。
+- 已通过训练仓库 PR `#4` 验证 DeepSeek 真实 diff review，平台成功接收并展示 LLM 回复。
+- 已配置固定 Cloudflare Tunnel webhook URL：
+
+```text
+https://webhook.simu-but-real.com/api/github/webhook
+```
+
+- 已通过 `SBR-JAVA-TEST-005` 验证 Phase 6 新任务全流程：固定 webhook 同步 PR / CI，Review Agent 读取真实 PR diff，DeepSeek 返回结果后平台更新 Review 和 PR 状态卡片。
+- 工作台 pipeline 已拆分为 5 个阶段：
+
+```text
+已领取 -> 本地开发 -> CI -> Review -> PR
+```
 
 Review 重点：
 

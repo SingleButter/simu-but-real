@@ -2,7 +2,7 @@ import { createHmac, timingSafeEqual } from "crypto";
 import { CiState, PullRequestState, TaskStatus } from "@prisma/client";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import type { WorkflowState } from "@/lib/types";
+import { buildTaskPipeline } from "@/lib/task-pipeline";
 
 export const runtime = "nodejs";
 
@@ -159,7 +159,11 @@ async function syncPullRequestEvent(body: GitHubWebhookBody): Promise<SyncResult
       where: { id: task.id },
       data: {
         status: taskStatus,
-        pipeline: buildPipeline(taskStatus, task.pullRequest?.ciState ?? CiState.WAITING)
+        pipeline: buildTaskPipeline({
+          taskStatus,
+          ciState: task.pullRequest?.ciState ?? CiState.WAITING,
+          pullRequestState
+        })
       }
     }),
     prisma.pullRequestRecord.upsert({
@@ -252,7 +256,11 @@ async function syncCheckEvent(
     prisma.taskTicket.update({
       where: { id: pullRequestRecord.taskId },
       data: {
-        pipeline: buildPipeline(pullRequestRecord.task.status, ciState)
+        pipeline: buildTaskPipeline({
+          taskStatus: pullRequestRecord.task.status,
+          ciState,
+          pullRequestState: pullRequestRecord.state
+        })
       }
     })
   ]);
@@ -339,30 +347,6 @@ function buildReviewSummary(state: PullRequestState) {
   };
 
   return summaries[state];
-}
-
-function buildPipeline(taskStatus: TaskStatus | string, ciState: CiState): Array<{
-  label: string;
-  state: WorkflowState;
-}> {
-  if (taskStatus === TaskStatus.COMPLETE) {
-    return [
-      { label: "已领取", state: "done" },
-      { label: "本地开发", state: "done" },
-      { label: "CI 已通过", state: "done" },
-      { label: "已合并", state: "done" }
-    ];
-  }
-
-  return [
-    { label: "已领取", state: "done" },
-    { label: "本地开发", state: "done" },
-    {
-      label: ciState === CiState.FAILED ? "CI 失败" : ciState === CiState.PASSED ? "CI 已通过" : "CI 运行中",
-      state: ciState === CiState.FAILED ? "blocked" : ciState === CiState.PASSED ? "done" : "active"
-    },
-    { label: "Review 待完成", state: ciState === CiState.PASSED ? "active" : "pending" }
-  ];
 }
 
 function upsertCheckRun(

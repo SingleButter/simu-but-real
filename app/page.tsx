@@ -47,7 +47,7 @@ export default async function HomePage() {
                 </span>
               ))}
             </div>
-            <div className="mt-6 grid gap-3 md:grid-cols-4">
+            <div className="mt-6 grid gap-3 md:grid-cols-5">
               {currentTask.pipeline.map((step) => (
                 <div
                   className={`rounded-md border px-3 py-3 text-sm font-medium ${workflowClass(step.state)}`}

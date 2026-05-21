@@ -93,7 +93,8 @@ export async function ensureStarterAssignment({
         { label: "已领取", state: "active" },
         { label: "本地开发", state: "pending" },
         { label: "CI 待运行", state: "pending" },
-        { label: "Review 待提交", state: "pending" }
+        { label: "Review 待完成", state: "pending" },
+        { label: "PR 待通过", state: "pending" }
       ]
     }
   });
