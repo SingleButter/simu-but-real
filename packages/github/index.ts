@@ -29,3 +29,5 @@ export async function submitAiReview() {
     body: "AI review summary will be posted to the pull request."
   };
 }
+
+export { fetchPullRequestDiff } from "./pull-request";

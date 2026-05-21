@@ -41,14 +41,23 @@ Simu but Real 是一个面向 Java 后端求职新人和初级开发者的企业
 - Dev Container 推荐开发环境。
 - GitHub Actions CI 模板。
 - 手动创建真实 GitHub 训练仓库，并推送 Java 模板。
+- GitHub Webhook 第一版状态同步，支持真实 PR 和 CI 状态同步到平台。
+- DeepSeek Review Agent 第一版，支持读取 PR diff、生成结构化 review 并展示在平台 `/review` 页面。
+- 工作台 pipeline 拆分为 `已领取 -> 本地开发 -> CI -> Review -> PR`，能够区分 CI 通过、AI Review 通过和 PR 待合并/已通过。
+- 固定 Cloudflare Tunnel webhook URL 已用于本地 MVP 测试：
+
+```text
+https://webhook.simu-but-real.com/api/github/webhook
+```
 
 ## 非 MVP 范围
 
 这些能力属于后续阶段：
 
 - GitHub App 自动创建仓库、分支、PR。
-- Webhook 持续同步 PR、CI、Review 状态。
-- 真正的 AI Review Agent 接入 LLM API。
+- 正式稳定部署环境中的长期 webhook URL、失败重试和 delivery 审计。
+- 自动在 CI 通过后触发 Review Agent。
+- 将 Review Agent 评论自动写回 GitHub PR。
 - 多用户共享训练仓库和冲突训练。
 - 自动生成个性化任务序列。
 - 组织级仓库托管和权限隔离。
@@ -113,4 +122,5 @@ MVP 的成功标准不是功能多，而是第一条真实闭环能跑通：
 4. 用户能在任务分支上运行 `mvn test`。
 5. 用户能修改代码、提交、push、创建 PR。
 6. GitHub Actions 能运行 CI。
-7. 平台能逐步接入 PR 和 Review 状态。
+7. 平台能同步 PR 和 CI 状态。
+8. Review Agent 能读取真实 PR diff，调用 LLM 并在平台展示 review 结果。

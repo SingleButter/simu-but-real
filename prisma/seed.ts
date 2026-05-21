@@ -95,7 +95,8 @@ async function main() {
         { label: "已领取", state: "done" },
         { label: "本地开发", state: "done" },
         { label: "CI 已通过", state: "done" },
-        { label: "已合并", state: "done" }
+        { label: "Review 已通过", state: "done" },
+        { label: "PR 已通过", state: "done" }
       ]
     },
     create: {
@@ -129,7 +130,8 @@ async function main() {
         { label: "已领取", state: "done" },
         { label: "本地开发", state: "done" },
         { label: "CI 已通过", state: "done" },
-        { label: "已合并", state: "done" }
+        { label: "Review 已通过", state: "done" },
+        { label: "PR 已通过", state: "done" }
       ]
     }
   });
@@ -178,6 +180,234 @@ async function main() {
           line: 1,
           severity: "info",
           message: "首个真实 PR 已完成并合并。下一步接入 GitHub webhook 自动同步状态。"
+        }
+      ]
+    }
+  });
+
+  const testOnlyTask = await prisma.taskTicket.upsert({
+    where: { publicId: "SBR-JAVA-TEST-004" },
+    update: {
+      userId: user.id,
+      repositoryId: repository.id,
+      title: "补充 createTask 字段保留测试",
+      description:
+        "当前 createTask 已能创建任务，但缺少测试证明它会把请求里的 title、dueDate 和 priority 原样写入 TaskItem。本任务只需要新增一个测试，不修改生产代码。",
+      status: "CLAIMED",
+      branchName: "task/add-create-task-field-test",
+      mentorHint:
+        "只在 TaskServiceTest 中新增一个测试：构造 CreateTaskRequest，调用 createTask，然后断言 title、dueDate、priority 都和请求一致。",
+      acceptanceCriteria: [
+        "只新增 1 个 JUnit 测试",
+        "测试覆盖 createTask 会保留 title、dueDate 和 priority",
+        "不修改 src/main 下的生产代码",
+        "本地运行 mvn test 通过"
+      ],
+      editableScope: ["src/test/java/com/simubutreal/taskapi/TaskServiceTest.java"],
+      commands: {
+        clone: "git clone git@github.com:SingleButter/sbr-java-task-api-singlebutter.git",
+        test: "mvn test",
+        devContainer: "VS Code / Cursor: Reopen in Container"
+      },
+      pipeline: [
+        { label: "已领取", state: "active" },
+        { label: "本地开发", state: "pending" },
+        { label: "CI 待运行", state: "pending" },
+        { label: "Review 待完成", state: "pending" },
+        { label: "PR 待通过", state: "pending" }
+      ]
+    },
+    create: {
+      publicId: "SBR-JAVA-TEST-004",
+      userId: user.id,
+      repositoryId: repository.id,
+      title: "补充 createTask 字段保留测试",
+      description:
+        "当前 createTask 已能创建任务，但缺少测试证明它会把请求里的 title、dueDate 和 priority 原样写入 TaskItem。本任务只需要新增一个测试，不修改生产代码。",
+      status: "CLAIMED",
+      branchName: "task/add-create-task-field-test",
+      mentorHint:
+        "只在 TaskServiceTest 中新增一个测试：构造 CreateTaskRequest，调用 createTask，然后断言 title、dueDate、priority 都和请求一致。",
+      acceptanceCriteria: [
+        "只新增 1 个 JUnit 测试",
+        "测试覆盖 createTask 会保留 title、dueDate 和 priority",
+        "不修改 src/main 下的生产代码",
+        "本地运行 mvn test 通过"
+      ],
+      editableScope: ["src/test/java/com/simubutreal/taskapi/TaskServiceTest.java"],
+      commands: {
+        clone: "git clone git@github.com:SingleButter/sbr-java-task-api-singlebutter.git",
+        test: "mvn test",
+        devContainer: "VS Code / Cursor: Reopen in Container"
+      },
+      pipeline: [
+        { label: "已领取", state: "active" },
+        { label: "本地开发", state: "pending" },
+        { label: "CI 待运行", state: "pending" },
+        { label: "Review 待完成", state: "pending" },
+        { label: "PR 待通过", state: "pending" }
+      ]
+    }
+  });
+
+  await prisma.pullRequestRecord.upsert({
+    where: { taskId: testOnlyTask.id },
+    update: {
+      githubNumber: null,
+      title: "补充 createTask 字段保留测试",
+      githubUrl: null,
+      state: "NOT_CREATED",
+      ciState: "WAITING",
+      reviewSummary:
+        "新任务已分配。提交分支并创建 PR 后，平台会通过 webhook 同步 CI，并可运行 DeepSeek Review。",
+      checkRuns: [
+        { name: "mvn test", status: "waiting", duration: "--" },
+        { name: "branch protection", status: "waiting", duration: "--" },
+        { name: "ai-review-gate", status: "waiting", duration: "--" }
+      ],
+      comments: [
+        {
+          file: "TaskServiceTest.java",
+          line: 1,
+          severity: "info",
+          message: "本任务只允许新增测试，不需要修改生产代码。"
+        }
+      ],
+      lastSyncedAt: null
+    },
+    create: {
+      taskId: testOnlyTask.id,
+      title: "补充 createTask 字段保留测试",
+      state: "NOT_CREATED",
+      ciState: "WAITING",
+      reviewSummary:
+        "新任务已分配。提交分支并创建 PR 后，平台会通过 webhook 同步 CI，并可运行 DeepSeek Review。",
+      checkRuns: [
+        { name: "mvn test", status: "waiting", duration: "--" },
+        { name: "branch protection", status: "waiting", duration: "--" },
+        { name: "ai-review-gate", status: "waiting", duration: "--" }
+      ],
+      comments: [
+        {
+          file: "TaskServiceTest.java",
+          line: 1,
+          severity: "info",
+          message: "本任务只允许新增测试，不需要修改生产代码。"
+        }
+      ]
+    }
+  });
+
+  const statusUpdateFieldTask = await prisma.taskTicket.upsert({
+    where: { publicId: "SBR-JAVA-TEST-005" },
+    update: {
+      userId: user.id,
+      repositoryId: repository.id,
+      title: "补充状态更新字段保留测试",
+      description:
+        "当前 updateTaskStatus 会返回更新后的 TaskItem。本任务只需要新增一个测试，证明状态更新只改变 status，不会改变原任务的 title、dueDate 和 priority。",
+      status: "CLAIMED",
+      branchName: "task/add-status-update-preserves-fields-test",
+      mentorHint:
+        "只在 TaskServiceTest 中新增一个测试：找到一个 TODO 任务，记录 title、dueDate、priority，调用 updateTaskStatus 改为 IN_PROGRESS，然后断言这些字段保持不变。",
+      acceptanceCriteria: [
+        "只新增 1 个 JUnit 测试",
+        "测试覆盖 updateTaskStatus 会把 TODO 改为 IN_PROGRESS",
+        "测试同时断言 title、dueDate 和 priority 保持不变",
+        "不修改 src/main 下的生产代码",
+        "本地运行 mvn test 通过"
+      ],
+      editableScope: ["src/test/java/com/simubutreal/taskapi/TaskServiceTest.java"],
+      commands: {
+        clone: "git clone git@github.com:SingleButter/sbr-java-task-api-singlebutter.git",
+        test: "mvn test",
+        devContainer: "VS Code / Cursor: Reopen in Container"
+      },
+      pipeline: [
+        { label: "已领取", state: "active" },
+        { label: "本地开发", state: "pending" },
+        { label: "CI 待运行", state: "pending" },
+        { label: "Review 待完成", state: "pending" },
+        { label: "PR 待通过", state: "pending" }
+      ]
+    },
+    create: {
+      publicId: "SBR-JAVA-TEST-005",
+      userId: user.id,
+      repositoryId: repository.id,
+      title: "补充状态更新字段保留测试",
+      description:
+        "当前 updateTaskStatus 会返回更新后的 TaskItem。本任务只需要新增一个测试，证明状态更新只改变 status，不会改变原任务的 title、dueDate 和 priority。",
+      status: "CLAIMED",
+      branchName: "task/add-status-update-preserves-fields-test",
+      mentorHint:
+        "只在 TaskServiceTest 中新增一个测试：找到一个 TODO 任务，记录 title、dueDate、priority，调用 updateTaskStatus 改为 IN_PROGRESS，然后断言这些字段保持不变。",
+      acceptanceCriteria: [
+        "只新增 1 个 JUnit 测试",
+        "测试覆盖 updateTaskStatus 会把 TODO 改为 IN_PROGRESS",
+        "测试同时断言 title、dueDate 和 priority 保持不变",
+        "不修改 src/main 下的生产代码",
+        "本地运行 mvn test 通过"
+      ],
+      editableScope: ["src/test/java/com/simubutreal/taskapi/TaskServiceTest.java"],
+      commands: {
+        clone: "git clone git@github.com:SingleButter/sbr-java-task-api-singlebutter.git",
+        test: "mvn test",
+        devContainer: "VS Code / Cursor: Reopen in Container"
+      },
+      pipeline: [
+        { label: "已领取", state: "active" },
+        { label: "本地开发", state: "pending" },
+        { label: "CI 待运行", state: "pending" },
+        { label: "Review 待完成", state: "pending" },
+        { label: "PR 待通过", state: "pending" }
+      ]
+    }
+  });
+
+  await prisma.pullRequestRecord.upsert({
+    where: { taskId: statusUpdateFieldTask.id },
+    update: {
+      githubNumber: null,
+      title: "补充状态更新字段保留测试",
+      githubUrl: null,
+      state: "NOT_CREATED",
+      ciState: "WAITING",
+      reviewSummary:
+        "新任务已分配。提交分支并创建 PR 后，平台会通过 webhook 同步 CI，并可运行 DeepSeek Review。",
+      checkRuns: [
+        { name: "mvn test", status: "waiting", duration: "--" },
+        { name: "branch protection", status: "waiting", duration: "--" },
+        { name: "ai-review-gate", status: "waiting", duration: "--" }
+      ],
+      comments: [
+        {
+          file: "TaskServiceTest.java",
+          line: 1,
+          severity: "info",
+          message: "本任务只允许新增测试，不需要修改生产代码。"
+        }
+      ],
+      lastSyncedAt: null
+    },
+    create: {
+      taskId: statusUpdateFieldTask.id,
+      title: "补充状态更新字段保留测试",
+      state: "NOT_CREATED",
+      ciState: "WAITING",
+      reviewSummary:
+        "新任务已分配。提交分支并创建 PR 后，平台会通过 webhook 同步 CI，并可运行 DeepSeek Review。",
+      checkRuns: [
+        { name: "mvn test", status: "waiting", duration: "--" },
+        { name: "branch protection", status: "waiting", duration: "--" },
+        { name: "ai-review-gate", status: "waiting", duration: "--" }
+      ],
+      comments: [
+        {
+          file: "TaskServiceTest.java",
+          line: 1,
+          severity: "info",
+          message: "本任务只允许新增测试，不需要修改生产代码。"
         }
       ]
     }

@@ -1,27 +1,24 @@
 import type { ProgressMetric, PullRequestStatus, TrainingTask } from "@/lib/types";
 
 export const currentTask: TrainingTask = {
-  id: "SBR-JAVA-373192",
-  title: "补全任务状态校验逻辑",
+  id: "SBR-JAVA-TEST-005",
+  title: "补充状态更新字段保留测试",
   summary:
-    "任务 API 当前允许把已完成任务重新改回待处理状态。你需要在 service 层补充状态流转校验，并用测试覆盖非法流转。",
+    "当前 updateTaskStatus 会返回更新后的 TaskItem。本任务只需要新增一个测试，证明状态更新只改变 status，不会改变原任务的 title、dueDate 和 priority。",
   repository: "SingleButter/sbr-java-task-api-singlebutter",
-  branch: "task/validate-task-status",
+  branch: "task/add-status-update-preserves-fields-test",
   stack: ["Java 21", "Spring Boot", "Maven", "JUnit 5"],
-  status: "complete",
+  status: "claimed",
   acceptanceCriteria: [
-    "已完成任务不能被改回 TODO 或 IN_PROGRESS",
-    "非法状态流转返回清晰的业务错误",
-    "新增至少 2 个状态流转相关测试",
-    "不修改任务创建接口和响应字段结构"
+    "只新增 1 个 JUnit 测试",
+    "测试覆盖 updateTaskStatus 会把 TODO 改为 IN_PROGRESS",
+    "测试同时断言 title、dueDate 和 priority 保持不变",
+    "不修改 src/main 下的生产代码",
+    "本地运行 mvn test 通过"
   ],
-  editableScope: [
-    "src/main/java/com/simubutreal/taskapi/service/TaskService.java",
-    "src/main/java/com/simubutreal/taskapi/model/TaskStatus.java",
-    "src/test/java/com/simubutreal/taskapi/TaskServiceTest.java"
-  ],
+  editableScope: ["src/test/java/com/simubutreal/taskapi/TaskServiceTest.java"],
   mentorHint:
-    "先从测试入手，写出“已完成任务不能回退到待处理”的失败用例，再实现最小范围的 service 层校验。",
+    "只在 TaskServiceTest 中新增一个测试：找到一个 TODO 任务，记录 title、dueDate、priority，调用 updateTaskStatus 改为 IN_PROGRESS，然后断言这些字段保持不变。",
   commands: {
     clone:
       "git clone git@github.com:SingleButter/sbr-java-task-api-singlebutter.git",
@@ -29,31 +26,33 @@ export const currentTask: TrainingTask = {
     devContainer: "VS Code / Cursor: Reopen in Container"
   },
   pipeline: [
-    { label: "已领取", state: "done" },
-    { label: "本地开发", state: "done" },
-    { label: "CI 已通过", state: "done" },
-    { label: "已合并", state: "done" }
+    { label: "已领取", state: "active" },
+    { label: "本地开发", state: "pending" },
+    { label: "CI 待运行", state: "pending" },
+    { label: "Review 待完成", state: "pending" },
+    { label: "PR 待通过", state: "pending" }
   ]
 };
 
 export const pullRequestStatus: PullRequestStatus = {
-  number: 1,
-  title: "fix: validate completed task status transitions",
-  githubUrl: "https://github.com/SingleButter/sbr-java-task-api-singlebutter/pull/1",
-  state: "merged",
-  ciState: "passed",
-  reviewSummary: "PR 已合并，任务完成。",
+  number: null,
+  title: "补充状态更新字段保留测试",
+  githubUrl: null,
+  state: "not_created",
+  ciState: "waiting",
+  reviewSummary:
+    "新任务已分配。提交分支并创建 PR 后，平台会通过 webhook 同步 CI，并可运行 DeepSeek Review。",
   checkRuns: [
-    { name: "Java Task API CI", status: "passed", duration: "--" },
-    { name: "mvn test", status: "passed", duration: "--" },
-    { name: "branch protection", status: "passed", duration: "--" }
+    { name: "mvn test", status: "waiting", duration: "--" },
+    { name: "branch protection", status: "waiting", duration: "--" },
+    { name: "ai-review-gate", status: "waiting", duration: "--" }
   ],
   comments: [
     {
-      file: "TaskService.java",
+      file: "TaskServiceTest.java",
       line: 1,
       severity: "info",
-      message: "首个真实 PR 已完成并合并。下一步接入 GitHub webhook 自动同步状态。"
+      message: "本任务只允许新增测试，不需要修改生产代码。"
     }
   ]
 };

@@ -57,12 +57,27 @@ WEBHOOK_REPLAY_URL=http://localhost:3001/api/github/webhook npm run webhook:repl
 
 本地回放通过后，再接真实 GitHub 事件：
 
-1. 用 ngrok 或其他隧道工具暴露本地服务。
+1. 用 ngrok、Cloudflare Tunnel 或其他隧道工具暴露本地服务。
 2. 在训练仓库设置 webhook URL：
 
 ```text
 https://<your-tunnel>/api/github/webhook
 ```
+
+当前本地 MVP 使用固定 Cloudflare Tunnel URL：
+
+```text
+https://webhook.simu-but-real.com/api/github/webhook
+```
+
+本机启动方式：
+
+```bash
+npm run dev
+cloudflared tunnel run sbr-webhook
+```
+
+`~/.cloudflared/config.yml` 中固定使用 `protocol: http2`，避免默认 QUIC 在当前网络下偶发断连。
 
 3. 配置 secret，和 `.env.local` 的 `GITHUB_WEBHOOK_SECRET` 保持一致。
 4. 勾选事件：

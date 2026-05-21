@@ -57,16 +57,16 @@ flowchart LR
 - 本地验证命令。
 - CI 要求。
 
-当前真实分配给用户的任务是：
+当前用于验证 Review Agent 的真实任务是：
 
 ```text
-SBR-JAVA-373192: 补全任务状态校验逻辑
+SBR-JAVA-TEST-004: 补充 createTask 字段保留测试
 ```
 
 任务分支：
 
 ```text
-task/validate-task-status
+task/add-create-task-field-test
 ```
 
 ## 3. 创建训练仓库
@@ -93,7 +93,7 @@ git@github.com:SingleButter/sbr-java-task-api-singlebutter.git
 ```bash
 git clone git@github.com:SingleButter/sbr-java-task-api-singlebutter.git
 cd sbr-java-task-api-singlebutter
-git checkout task/validate-task-status
+git checkout task/add-create-task-field-test
 ```
 
 平台提供 Dev Container，但不强制使用。用户可以选择本地 Maven、IntelliJ IDEA、VS Code、Cursor 或其他 IDE。
@@ -102,11 +102,13 @@ git checkout task/validate-task-status
 
 企业流程中，测试用于明确需求边界。平台会鼓励用户先写一个失败测试，让 bug 或缺失规则暴露出来，再实现修复。
 
-当前任务的测试方向包括：
+当前 test-only 任务的测试方向包括：
 
-- 已完成任务不能回退到 `TODO`。
-- 已完成任务不能回退到 `IN_PROGRESS`。
-- 非法状态流转应该返回清晰错误。
+- 只新增 1 个 JUnit 测试。
+- 覆盖 `createTask` 会保留请求中的 `title`。
+- 覆盖 `createTask` 会保留请求中的 `dueDate`。
+- 覆盖 `createTask` 会保留请求中的 `priority`。
+- 不修改 `src/main` 下的生产代码。
 
 本地验证命令：
 
@@ -120,7 +122,7 @@ mvn test
 
 ```bash
 git add .
-git commit -m "fix: validate completed task status transitions"
+git commit -m "test: cover create task field preservation"
 git push
 ```
 
@@ -144,7 +146,7 @@ git push
 
 ```md
 ## Summary
-修复已完成任务可回退状态的问题。
+新增 createTask 字段保留行为的测试。
 
 ## Verification
 - mvn test
@@ -179,9 +181,19 @@ Review Agent 的目标是模拟企业 reviewer。它应该检查：
 
 Review 不通过时，用户继续修改、push，PR 自动更新，CI 和 Review 重新运行。
 
+当前 MVP 中，工作台用独立卡片表达三个不同质量门：
+
+```text
+CI -> Review -> PR
+```
+
+- CI 卡片表示 GitHub Actions 是否通过。
+- Review 卡片只在 LLM Review 返回结果后改变。
+- PR 卡片表示 Review 通过后是否已经进入可合并/已合并状态。
+
 ## 10. 合并和能力更新
 
-当 CI 和 Review 都通过，任务才算完成。平台更新：
+当 CI、Review 和 PR 合并都完成，任务才算完成。平台更新：
 
 - 已完成任务数。
 - CI 修复次数。
@@ -198,7 +210,7 @@ Review 不通过时，用户继续修改、push，PR 自动更新，CI 和 Revie
 
 ```bash
 git fetch origin
-git checkout task/validate-task-status
+git checkout task/add-create-task-field-test
 git rebase origin/main
 mvn test
 ```
